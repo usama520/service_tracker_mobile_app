@@ -2,9 +2,7 @@ import { ApolloClient, InMemoryCache, HttpLink, from } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Update this to point to your Rails GraphQL endpoint if different
-const GRAPHQL_ENDPOINT = "http://localhost:3000/graphql";
+import { GRAPHQL_ENDPOINT } from '@env';
 
 const httpLink = new HttpLink({ uri: GRAPHQL_ENDPOINT });
 
@@ -18,9 +16,10 @@ const authLink = setContext(async (_, { headers }) => {
   };
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
+const errorLink = onError((errorResponse: any) => {
+  const { graphQLErrors, networkError } = errorResponse;
   if (graphQLErrors && graphQLErrors.length > 0) {
-    graphQLErrors.forEach((err) => {
+    graphQLErrors.forEach((err: any) => {
       // Consider handling UNAUTHENTICATED globally if needed
       console.warn(
         `[GraphQL error]: Message: ${err.message}, Path: ${err.path ?? []}`

@@ -3,7 +3,9 @@ import { gql } from "@apollo/client";
 export type User = {
   id: string;
   email: string;
-  name?: string | null;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
 };
 
 // Login
@@ -16,45 +18,70 @@ export type LoginResponse = {
   login: {
     token: string;
     user: User;
+    errors: string[];
   };
 };
 
 export const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
-    login(input: { email: $email, password: $password }) {
+    login(email: $email, password: $password) {
       token
       user {
         id
         email
-        name
+        firstName
+        lastName
+        phone
       }
+      errors
     }
   }
 `;
 
 // Register
 export type RegisterVariables = {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  passwordConfirmation: string;
+  phone?: string;
 };
 
 export type RegisterResponse = {
   register: {
     token: string;
     user: User;
+    errors: string[];
   };
 };
 
 export const REGISTER_MUTATION = gql`
-  mutation Register($name: String!, $email: String!, $password: String!) {
-    register(input: { name: $name, email: $email, password: $password }) {
+  mutation Register(
+    $email: String!
+    $password: String!
+    $passwordConfirmation: String!
+    $firstName: String!
+    $lastName: String!
+    $phone: String
+  ) {
+    register(
+      email: $email
+      password: $password
+      passwordConfirmation: $passwordConfirmation
+      firstName: $firstName
+      lastName: $lastName
+      phone: $phone
+    ) {
       token
       user {
         id
         email
-        name
+        firstName
+        lastName
+        phone
       }
+      errors
     }
   }
 `;

@@ -1,97 +1,291 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Car Service Tracker
 
-# Getting Started
+A modern React Native application for tracking vehicle maintenance, repairs, accidents, and reminders with a comprehensive timeline view.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+### ✅ Completed Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **Authentication System**
+  - User registration with email verification
+  - Secure login with JWT tokens
+  - Persistent authentication state
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- **Vehicle Management**
+  - Add, edit, and delete vehicles
+  - Track vehicle details (make, model, year, VIN, license plate, color)
+  - View vehicle health scores and statistics
+  - Monitor total repair costs and current odometer readings
 
-```sh
-# Using npm
-npm start
+- **Service History Timeline**
+  - Chronological display of all maintenance activities
+  - Service records with detailed information
+  - Accident records with severity tracking
+  - Maintenance reminders with due date/mileage tracking
+  - Beautiful card-based UI for each entry type
 
-# OR using Yarn
-yarn start
-```
+- **Service CRUD Operations**
+  - Create detailed service records
+  - Edit existing service entries
+  - Delete service records
+  - Track service costs, locations, technicians
+  - Major repair and warranty tracking
 
-## Step 2: Build and run your app
+- **Modern UI/UX**
+  - Dark mode support
+  - Card-based design with subtle shadows
+  - Color-coded status indicators
+  - Responsive layouts
+  - Pull-to-refresh functionality
+  - Loading states and error handling
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## Tech Stack
 
-### Android
+- **Frontend:** React Native 0.82
+- **State Management:** Zustand
+- **API Communication:** Apollo Client (GraphQL)
+- **Navigation:** React Navigation (Stack Navigator)
+- **Date Handling:** date-fns
+- **Type Safety:** TypeScript
 
-```sh
-# Using npm
-npm run android
+## Architecture
 
-# OR using Yarn
-yarn android
-```
+### State Management (Zustand)
+- `authStore.ts` - User authentication and token management
+- `vehicleStore.ts` - Vehicle data and selection
+- `serviceStore.ts` - Services, accidents, reminders, and filters
 
-### iOS
+### API Layer
+- `baseApi.ts` - Base API class with error handling
+- `authApi.ts` - Authentication operations
+- `vehicleApi.ts` - Vehicle CRUD operations
+- `serviceApi.ts` - Service CRUD operations
+- `accidentApi.ts` - Accident CRUD operations
+- `reminderApi.ts` - Reminder CRUD operations
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+### Custom Hooks
+- `useAuth()` - Authentication state and operations
+- `useVehicles()` - Vehicle management
+- `useServices()` - Service and timeline management
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+### Navigation Structure
+- **Auth Stack:** Login, Register
+- **Main Stack:** VehicleList, VehicleDetail, Timeline, AddService, EditService, ServiceDetail
 
-```sh
-bundle install
-```
+## Setup Instructions
 
-Then, and every time you update your native dependencies, run:
+### Prerequisites
+- Node.js >= 20
+- npm or yarn
+- React Native development environment set up
+- iOS: Xcode (for iOS development)
+- Android: Android Studio and SDK (for Android development)
 
-```sh
-bundle exec pod install
-```
+### Installation
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+1. **Clone the repository** (if applicable)
+   ```bash
+   cd /Users/usamaarshad/Projects/car_service_tracker
+   ```
 
-```sh
-# Using npm
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Install iOS pods** (iOS only)
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+4. **Configure GraphQL endpoint**
+   Update the GraphQL endpoint in `src/graphql/client.ts`:
+   ```typescript
+   const GRAPHQL_ENDPOINT = "http://your-backend-url/graphql";
+   ```
+
+### Running the App
+
+#### iOS
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+#### Android
+```bash
+npm run android
+```
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+#### Start Metro bundler separately (optional)
+```bash
+npm start
+```
 
-## Step 3: Modify your app
+## Project Structure
 
-Now that you have successfully run the app, let's make changes!
+```
+car_service_tracker/
+├── App.tsx                      # Main app component
+├── src/
+│   ├── api/                     # API layer
+│   │   ├── baseApi.ts
+│   │   ├── authApi.ts
+│   │   ├── vehicleApi.ts
+│   │   ├── serviceApi.ts
+│   │   ├── accidentApi.ts
+│   │   └── reminderApi.ts
+│   ├── components/              # Reusable components
+│   │   ├── timeline/
+│   │   │   ├── ServiceCard.tsx
+│   │   │   ├── AccidentCard.tsx
+│   │   │   ├── ReminderCard.tsx
+│   │   │   └── TimelineItem.tsx
+│   │   └── common/
+│   ├── graphql/                 # GraphQL queries and mutations
+│   │   ├── client.ts
+│   │   ├── types.ts
+│   │   ├── queries/
+│   │   │   ├── vehicles.ts
+│   │   │   └── services.ts
+│   │   └── mutations/
+│   │       ├── auth.ts
+│   │       ├── vehicles.ts
+│   │       └── services.ts
+│   ├── hooks/                   # Custom hooks
+│   │   ├── useAuth.ts
+│   │   ├── useVehicles.ts
+│   │   └── useServices.ts
+│   ├── navigation/              # Navigation configuration
+│   │   ├── AppNavigator.tsx
+│   │   ├── AuthNavigator.tsx
+│   │   ├── MainNavigator.tsx
+│   │   └── types.ts
+│   ├── screens/                 # Screen components
+│   │   ├── auth/
+│   │   │   ├── LoginScreen.tsx
+│   │   │   └── RegisterScreen.tsx
+│   │   ├── vehicles/
+│   │   │   ├── VehicleListScreen.tsx
+│   │   │   ├── VehicleDetailScreen.tsx
+│   │   │   └── AddVehicleScreen.tsx
+│   │   ├── timeline/
+│   │   │   └── TimelineScreen.tsx
+│   │   └── services/
+│   │       ├── ServiceDetailScreen.tsx
+│   │       ├── AddServiceScreen.tsx
+│   │       └── EditServiceScreen.tsx
+│   ├── store/                   # Zustand stores
+│   │   ├── authStore.ts
+│   │   ├── vehicleStore.ts
+│   │   └── serviceStore.ts
+│   └── theme/                   # Theme configuration
+│       ├── colors.ts
+│       ├── spacing.ts
+│       ├── typography.ts
+│       └── index.ts
+├── android/                     # Android native code
+├── ios/                         # iOS native code
+└── package.json
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Key Features Detail
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Authentication
+- JWT token-based authentication
+- Tokens stored securely in AsyncStorage
+- Auto-login on app restart
+- Logout functionality
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### Vehicle Management
+- Add vehicles with comprehensive details
+- Health score visualization (0-100)
+- Total repair cost tracking
+- Current odometer reading
 
-## Congratulations! :tada:
+### Timeline View
+- Chronological display of all activities
+- Three types of entries:
+  - **Services:** Regular maintenance with cost, location, technician
+  - **Accidents:** Severity tracking, repair costs, insurance info
+  - **Reminders:** Upcoming maintenance with countdown
 
-You've successfully run and modified your React Native App. :partying_face:
+### Service Records
+- Comprehensive service tracking:
+  - Date, odometer, cost
+  - Location and technician name
+  - Service type categorization
+  - Major repair flag
+  - Warranty tracking (duration and status)
+  - Notes for additional details
+  - Photo support (structure in place)
 
-### Now what?
+## API Integration
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+The app integrates with a GraphQL backend API. Key mutations and queries:
 
-# Troubleshooting
+### Auth
+- `login` - User authentication
+- `register` - New user registration
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Vehicles
+- `vehicles` - Get all vehicles
+- `vehicle(id)` - Get single vehicle with details
+- `createVehicle` - Add new vehicle
+- `updateVehicle` - Edit vehicle
+- `deleteVehicle` - Remove vehicle
 
-# Learn More
+### Services
+- `services(vehicleId)` - Get services for a vehicle
+- `service(id)` - Get single service
+- `serviceTypes` - Get available service types
+- `createService` - Add new service
+- `updateService` - Edit service
+- `deleteService` - Remove service
 
-To learn more about React Native, take a look at the following resources:
+### Accidents & Reminders
+- Similar CRUD operations available
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## Future Enhancements
+
+Potential features for future development:
+
+1. **Photo Support**
+   - Implement react-native-image-picker integration
+   - Photo gallery component
+   - Photo upload to backend
+
+2. **Advanced Filtering**
+   - Date range filters
+   - Service type filters
+   - Cost range filters
+   - Search functionality
+
+3. **Statistics Dashboard**
+   - Cost analysis charts
+   - Service frequency graphs
+   - Predictive maintenance alerts
+
+4. **Export Features**
+   - PDF report generation
+   - CSV export for service history
+   - Share vehicle records
+
+5. **Push Notifications**
+   - Reminder notifications
+   - Overdue maintenance alerts
+
+6. **Multi-vehicle Comparison**
+   - Compare costs across vehicles
+   - Fleet management features
+
+## Contributing
+
+This is a personal project, but suggestions and improvements are welcome!
+
+## License
+
+Proprietary - All rights reserved
+
+## Support
+
+For issues or questions, please contact the development team.

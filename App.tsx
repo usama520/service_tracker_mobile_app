@@ -1,36 +1,31 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * Car Service Tracker App
  *
  * @format
  */
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import React from 'react';
+import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import HomeScreen from './src/screens/HomeScreen';
+import { ApolloProvider as ApolloProviderType } from '@apollo/client/react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import apolloClient from './src/graphql/client';
+import AppNavigator from './src/navigation/AppNavigator';
+
+const ApolloProvider = ApolloProviderType as any;
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ApolloProvider client={apolloClient}>
+        <SafeAreaProvider>
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+          <AppNavigator />
+        </SafeAreaProvider>
+      </ApolloProvider>
+    </GestureHandlerRootView>
   );
 }
-
-function AppContent() {
-  return (
-    <View style={styles.container}>
-      <HomeScreen />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;
