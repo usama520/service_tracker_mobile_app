@@ -8,10 +8,47 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
+# Fix for Xcode 15 and React Native 0.73.0
+# To fix `…/Libraries/…` is located outside of the allowed root paths.`
+# error, we need to add the following line. You can safely remove this
+# line once the issue is fixed in React Native or your Pods are updated
+# to a newer version that includes the fix.
+#
+# This workaround is to avoid the build error: 
+# `error: cyclic dependency between targets 'Folly' and 'ReactCommon'`.
+#
+# More information: 
+# - https://github.com/facebook/react-native/issues/41191
+# - https://github.com/facebook/react-native/issues/41191#issuecomment-1845700891
+$raw_react_native_pods_path = Pod::Executable.execute_command(
+    'node', ['-p', 'require.resolve("react-native/scripts/react_native_pods.rb", {paths: [process.argv[1]]})', __dir__]
+  ).strip
+eval(File.read($raw_react_native_pods_path), binding, $raw_react_native_pods_path)
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
+
+  pre_install do |installer|
+    # Workaround for https://github.com/CocoaPods/CocoaPods/issues/11808
+    # This prevents the `FRAMEWORK_INCLUDE_PRIVATE_HEADERS` build setting from being
+    # set to `YES` for pods that are not frameworks, which can cause issues with
+    # non-modular includes.
+    installer.pod_targets.each do |pod_target|
+        # The following is a workaround for an issue where a library tries to import a
+        # header file with quotes, e.g. `#import "SomeHeader.h"` instead of with angle
+        # brackets `#import <SomeHeader.h>`. This will cause the library to not be
+        # found when `use_frameworks!` is specified.
+        #
+        # We are only applying this to modules that are not frameworks to avoid
+        # warning messages on other pods (e.g. `react-native-webrtc`).
+        unless pod_target.is_framework?
+            pod_target.build_configurations.each do |config|
+                config.build_settings['FRAMEWORK_INCLUDE_PRIVATE_HEADERS'] = 'NO'
+            end
+        end
+    end
+  end
 end
 
 target 'car_service_tracker' do

@@ -18,9 +18,13 @@ type CreateServiceInput = {
   technicianName?: string;
   warrantyProvided?: boolean;
   warrantyDurationMonths?: number;
+  photos?: string[];
 };
 
-type UpdateServiceInput = Partial<Omit<CreateServiceInput, 'vehicleId'>> & { id: string };
+type UpdateServiceInput = Partial<Omit<CreateServiceInput, 'vehicleId'>> & {
+  id: string;
+  removePhotoIds?: string[];
+};
 
 export const useServices = () => {
   const [isLoading, setIsLoading] = useState(false);

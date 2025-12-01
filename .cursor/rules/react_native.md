@@ -1,193 +1,199 @@
 ## **1. General Architecture**
 
-- Use the **App Router** (`app/`) for all new pages.
-- Use **Server Components by default**.
-
-  - Only use **Client Components** when absolutely required (state, effects, event listeners, browser APIs).
-
-- Keep components **pure** and side-effect-free unless they are Client Components.
-- Place business logic in **server functions**, not React components.
-
----
-
-## **2. File & Folder Structure**
-
-- Organize routes like:
+* Use **feature-based folder structure**, not giant `/components` or `/screens` dumps.
+  Example:
 
   ```
   app/
-    (marketing)/
-    (dashboard)/
+    auth/
+      components/
+      screens/
+      hooks/
+      services/
+    profile/
+    home/
+  ```
+* Keep components **pure and presentational** when possible. Move logic to hooks.
+* Use **TypeScript everywhere**.
+* Use **React Query** or **SWR** for network cache + state. Avoid storing API data in Redux.
+
+---
+
+## **2. State Management**
+
+* Prefer **React Query** for server state.
+* Use **Zustand or Jotai** for simple client state (theme, filters, UI toggles).
+* Avoid Redux unless project requires enterprise-scale global state.
+* Keep state minimal; don’t duplicate state that can be derived.
+
+---
+
+## **3. Components**
+
+* All components must be:
+
+  * Function components
+  * Typed with TypeScript (`FC<Props>` is allowed but not required)
+  * Wrapped in `memo()` if they receive heavy props or re-render often
+
+* Create reusable components for spacing, layout, and typography (e.g., `<Row>`, `<Spacer>`, `<TextXXL>`).
+
+* Avoid deeply nested inline styles. Use:
+
+  * `StyleSheet.create()`
+  * Tailwind via **nativewind** when needed
+
+---
+
+## **4. Navigation**
+
+* Use **React Navigation v6+**.
+* Use **type-safe navigation** with `ParamList` for all stacks.
+* Keep navigation definitions in their own folder (`navigation/`).
+* Never put business logic inside screens directly; delegate to hooks.
+
+---
+
+## **5. API Layer**
+
+* Create a dedicated folder for API logic:
+
+  ```
+  services/api/
+  ```
+* Use a single API client (e.g. Axios or fetch wrapper).
+* Implement:
+
+  * Interceptors for auth refresh
+  * Automatic error normalization
+* Always define **typed API responses** and **error shapes**.
+* Never call `fetch()` directly inside screens.
+
+---
+
+## **6. Error Handling & Logging**
+
+* Centralize all app errors:
+
+  * API errors
+  * Validation errors
+  * Unexpected exceptions
+
+* Use:
+
+  * `ErrorBoundary` for UI-level failures
+  * `Sentry` for production crash reports
+
+---
+
+## **7. Performance**
+
+* Use `FlatList`/`SectionList` correctly:
+
+  * Provide `keyExtractor`
+  * Memoize `renderItem`
+  * Use `getItemLayout` when list has fixed-size items
+
+* Avoid anonymous inline functions inside render trees.
+
+* Use `useCallback`, `useMemo`, and `memo` intentionally (not everywhere).
+
+* Images:
+
+  * Use **react-native-fast-image** for caching.
+  * Always define explicit width/height.
+
+---
+
+## **8. Styling**
+
+* Prefer:
+
+  * **StyleSheet** for fixed styles
+  * **nativewind** for dynamic styles
+  * Avoid inline styles unless trivial (`<View style={{ flex: 1 }}>`)
+
+* Follow a **design system**:
+
+  * Colors in `theme/colors.ts`
+  * Spacing in `theme/spacing.ts`
+  * Typography in `theme/typography.ts`
+
+* Always use consistent spacing (ex: 4/8/12/16/24).
+
+---
+
+## **9. Forms**
+
+* Use **react-hook-form** + **zod** or **yup**.
+* Store validation schemas next to form components.
+* Do NOT manage form fields manually with local state.
+
+---
+
+## **10. File Organization**
+
+```
+src/
+  app.tsx
+  navigation/
+  screens/
+  components/
+  hooks/
+  services/
     api/
-    components/
-    lib/
-    hooks/
-    types/
-  ```
-
-- Reusable UI goes inside `app/components`.
-- Shared logic or utilities go inside `app/lib`.
-- Keep all TypeScript types in `app/types`.
+    auth/
+  store/
+  theme/
+  utils/
+  assets/
+```
 
 ---
 
-## **3. Data Fetching Rules**
+## **11. Security**
 
-- **Prefer Server Components** + `fetch()` with caching.
-- If you need real-time updates or client state → use a **Client Component** and:
+* Never store JWTs in plain AsyncStorage. Use:
 
-  - SWR
-  - React Query
-  - Apollo Client (GraphQL)
+  * **Expo SecureStore**
+  * or Keychain/Keystore
 
-- Use `fetch()` with:
+* Always enable HTTPS.
 
-  - **cache: 'force-cache'** for static data
-  - **cache: 'no-store'** for dynamic, non-cacheable data
-  - **revalidate: <seconds>** for ISR
+* Disable all console logs in production.
 
 ---
 
-## **4. API Design (Routes API or Backend Integration)**
+## **12. Testing**
 
-- API routes go under `app/api/*/route.ts`.
-- Each route file must export only the HTTP verbs used:
+* Use **Jest** + **React Native Testing Library**.
+* Snapshot test only stable UI components.
+* Unit test:
 
-  ```ts
-  export async function POST(req: Request) {}
-  ```
-
-- Always validate input at the API boundary using:
-
-  - Zod
-  - Yup
-  - Valibot
-
-- Never trust client-provided data.
+  * hooks
+  * services
+  * pure components
 
 ---
 
-## **5. States & React Rules**
+## **13. Build & Deployment**
 
-- **Avoid global state** unless absolutely required.
-- For global state use:
-
-  - Zustand
-  - Jotai
-  - Context API (only if small-scale)
-
-- Never use Context for high-frequency updates (use Zustand instead).
+* Use **EAS Build** (Expo) or CI pipelines.
+* Generate app icons & splash screens via tools (not manual resizing).
+* Keep `.env` files out of version control.
+* Use a config wrapper to access env variables.
 
 ---
 
-## **6. Client Component Rules**
+## **14. Code Quality**
 
-- A component must be a Client Component only if:
+* Enforce:
 
-  - It uses `useState` / `useEffect` / `useRef`
-  - It handles browser events (`onClick`, `onChange`)
-  - It interacts with `window`, `localStorage`, `document`
-  - It integrates with third-party UI libraries requiring the DOM
+  * ESLint (with react-native & react hooks plugins)
+  * Prettier
+  * TypeScript strict mode
+  * Module path aliasing using `tsconfig.json`
 
-- Otherwise, it should be a **Server Component**.
+* Never commit commented-out code.
 
----
-
-## **7. Server Component Rules**
-
-- Can safely fetch data (uses backend credentials, tokens, secrets).
-- Can use async/await directly in the component body.
-- Must avoid:
-
-  - Browser APIs
-  - `useState`, `useEffect`, `useRef`
-  - Event handlers
-
----
-
-## **8. Authentication & Session Handling**
-
-- Prefer **NextAuth** or **custom JWT session** with:
-
-  - HttpOnly cookies
-  - Secure cookies in production
-
-- Never store JWTs in localStorage.
-
----
-
-## **9. Styling Rules**
-
-- Use:
-
-  - Tailwind CSS
-  - ShadCN/UI components
-
-- Avoid writing large amounts of CSS.
-- Use `class-variance-authority` for component variants.
-
----
-
-## **10. Performance Rules**
-
-- Use **React Server Components** to reduce bundle size.
-- Use `next/image` for all images.
-- Use `next/font` for optimized font loading.
-- Avoid large libraries in Client Components.
-- All lists must use `key` values that are stable and unique.
-
----
-
-## **11. Error Handling**
-
-- Use Next.js error boundaries:
-
-  - `error.tsx` for route-level errors
-  - `not-found.tsx` for 404
-
-- Always handle rejections in Server Actions.
-
----
-
-## **12. Forms & Server Actions**
-
-- Prefer **Server Actions** over API routes for form submissions.
-- Validate all form input using Zod before saving.
-
----
-
-## **13. Environment Variables**
-
-- All secrets go in `.env.local`
-- NEVER expose secrets to the client—only variables prefixed with `NEXT_PUBLIC_` are exposed.
-- Validate env vars with a schema file (zod example):
-
-  ```ts
-  const env = z.object({
-    DATABASE_URL: z.string().url(),
-  });
-  ```
-
----
-
-## **14. Logging & Monitoring**
-
-- Use:
-
-  - Vercel Observability (if hosting on Vercel)
-  - Sentry or Logtail for error reporting
-
-- Never log sensitive user data.
-
----
-
-## **15. Deployment Rules**
-
-- Always build with:
-
-  ```
-  next build
-  ```
-
-- Use Vercel or AWS for production deployments.
-- Enable Vercel caching & ISR if possible.
+* Avoid large components (>300 lines) — extract logic.

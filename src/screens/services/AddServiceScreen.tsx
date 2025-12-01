@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { MainNavigationProp, AddServiceRouteProp } from '../../navigation/types';
 import { useServices } from '../../hooks/useServices';
 import { useTheme } from '../../theme';
+import MediaUploader from '../../components/MediaUploader';
 
 const AddServiceScreen: React.FC = () => {
   const navigation = useNavigation<MainNavigationProp>();
@@ -37,6 +38,7 @@ const AddServiceScreen: React.FC = () => {
   const [warrantyDurationMonths, setWarrantyDurationMonths] = useState('');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [signedBlobIds, setSignedBlobIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetchServiceTypes();
@@ -81,6 +83,7 @@ const AddServiceScreen: React.FC = () => {
       technicianName: technicianName.trim() || undefined,
       warrantyProvided: warrantyProvided || undefined,
       warrantyDurationMonths: warrantyProvided ? warrantyMonths : undefined,
+      photos: signedBlobIds.length > 0 ? signedBlobIds : undefined,
     });
     setIsLoading(false);
 
@@ -277,6 +280,17 @@ const AddServiceScreen: React.FC = () => {
               />
             </View>
           )}
+
+          <View style={styles.inputContainer}>
+            <Text style={[styles.label, { color: themeColors.text }]}>
+              Photos & Videos
+            </Text>
+            <MediaUploader
+              onUploadComplete={setSignedBlobIds}
+              multiple={true}
+              maxMedia={10}
+            />
+          </View>
 
           <TouchableOpacity
             style={[

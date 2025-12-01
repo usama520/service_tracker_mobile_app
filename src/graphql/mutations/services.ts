@@ -15,6 +15,7 @@ export const CREATE_SERVICE = gql`
     $technicianName: String
     $warrantyProvided: Boolean
     $warrantyDurationMonths: Int
+    $photos: [String!]
   ) {
     createService(
       vehicleId: $vehicleId
@@ -30,6 +31,7 @@ export const CREATE_SERVICE = gql`
       technicianName: $technicianName
       warrantyProvided: $warrantyProvided
       warrantyDurationMonths: $warrantyDurationMonths
+      photos: $photos
     ) {
       service {
         id
@@ -69,6 +71,8 @@ export const UPDATE_SERVICE = gql`
     $technicianName: String
     $warrantyProvided: Boolean
     $warrantyDurationMonths: Int
+    $photos: [String!]
+    $removePhotoIds: [ID!]
   ) {
     updateService(
       id: $id
@@ -83,6 +87,8 @@ export const UPDATE_SERVICE = gql`
       technicianName: $technicianName
       warrantyProvided: $warrantyProvided
       warrantyDurationMonths: $warrantyDurationMonths
+      photos: $photos
+      removePhotoIds: $removePhotoIds
     ) {
       service {
         id
@@ -293,6 +299,19 @@ export const DELETE_REMINDER = gql`
     deleteReminder(id: $id) {
       reminder {
         id
+      }
+      errors
+    }
+  }
+`;
+
+export const CREATE_DIRECT_UPLOAD = gql`
+  mutation CreateDirectUpload($input: CreateDirectUploadInput!) {
+    createDirectUpload(input: $input) {
+      directUpload {
+        directUploadUrl
+        signedBlobId
+        uploadHeaders
       }
       errors
     }

@@ -21,9 +21,13 @@ type CreateServiceInput = {
   technicianName?: string;
   warrantyProvided?: boolean;
   warrantyDurationMonths?: number;
+  photos?: string[];
 };
 
-type UpdateServiceInput = Partial<Omit<CreateServiceInput, 'vehicleId'>> & { id: string };
+type UpdateServiceInput = Partial<Omit<CreateServiceInput, 'vehicleId'>> & {
+  id: string;
+  removePhotoIds?: string[];
+};
 
 class ServiceApi extends BaseApi {
   async getServices(vehicleId?: string): Promise<ApiResponse<ServiceEntry[]>> {
